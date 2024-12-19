@@ -1,0 +1,153 @@
+using System;
+using System.Collections.Generic;
+
+class Node
+{
+    public int Key;
+    public byte Height;
+    public Node Left;
+    public Node Right;
+
+    public Node(int key)
+    {
+        Key = key;
+        Left = Right = null;
+        Height = 1;
+    }
+}
+
+class AVLTree
+{
+    private byte Height(Node node) => node != null ? node.Height : (byte)0;
+
+    private int BalanceFactor(Node node) => Height(node.Right) - Height(node.Left);
+
+    private void FixHeight(Node node)
+    {
+        byte hl = Height(node.Left);
+        byte hr = Height(node.Right);
+        node.Height = (byte)(Math.Max(hl, hr) + 1);
+    }
+
+    private Node RotateRight(Node p)
+    {
+        Node q = p.Left;
+        p.Left = q.Right;
+        q.Right = p;
+        FixHeight(p);
+        FixHeight(q);
+        return q;
+    }
+
+    private Node RotateLeft(Node q)
+    {
+        Node p = q.Right;
+        q.Right = p.Left;
+        p.Left = q;
+        FixHeight(q);
+        FixHeight(p);
+        return p;
+    }
+
+    private Node Balance(Node node)
+    {
+        FixHeight(node);
+        if (BalanceFactor(node) == 2)
+        {
+            if (BalanceFactor(node.Right) < 0)
+                node.Right = RotateRight(node.Right);
+            return RotateLeft(node);
+        }
+        if (BalanceFactor(node) == -2)
+        {
+            if (BalanceFactor(node.Left) > 0)
+                node.Left = RotateLeft(node.Left);
+            return RotateRight(node);
+        }
+        return node;
+    }
+
+    public Node Insert(Node node, int key)
+    {
+        if (node == null) return new Node(key);
+        if (key < node.Key)
+            node.Left = Insert(node.Left, key);
+        else
+            node.Right = Insert(node.Right, key);
+        return Balance(node);
+    }
+
+    public Node FindMin(Node node) => node.Left != null ? FindMin(node.Left) : node;
+
+    public Node RemoveMin(Node node)
+    {
+        if (node.Left == null)
+            return node.Right;
+        node.Left = RemoveMin(node.Left);
+        return Balance(node);
+    }
+
+    public Node Remove(Node node, int key)
+    {
+        if (node == null) return null;
+        if (key < node.Key)
+            node.Left = Remove(node.Left, key);
+        else if (key > node.Key)
+            node.Right = Remove(node.Right, key);
+        else
+        {
+            Node left = node.Left;
+            Node right = node.Right;
+            if (right == null) return left;
+            Node min = FindMin(right);
+            min.Right = RemoveMin(right);
+            min.Left = left;
+            return Balance(min);
+        }
+        return Balance(node);
+    }
+
+    public void PrintTree(Node node)
+    {
+        if (node == null) return;
+        PrintTree(node.Left);
+        Console.Write(node.Key + " ");
+        PrintTree(node.Right);
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        AVLTree tree = new AVLTree();
+        Node root = null;
+
+        List<int> keys = new List<int> { 10, 20, 30, 40, 50, 25 };
+        Console.WriteLine("Inserting keys: ");
+        foreach (int key in keys)
+        {
+            Console.Write(key + " ");
+            root = tree.Insert(root, key);
+        }
+        Console.WriteLine();
+
+        Console.WriteLine("Tree after insertions (in-order traversal): ");
+        tree.PrintTree(root);
+        Console.WriteLine();
+
+        Console.WriteLine("Removing key 20");
+        root = tree.Remove(root, 20);
+
+        Console.WriteLine("Tree after removal of 20 (in-order traversal): ");
+        tree.PrintTree(root);
+        Console.WriteLine();
+
+        Console.WriteLine("Removing key 10");
+        root = tree.Remove(root, 10);
+
+        Console.WriteLine("Tree after removal of 10 (in-order traversal): ");
+        tree.PrintTree(root);
+        Console.WriteLine();
+    }
+}
