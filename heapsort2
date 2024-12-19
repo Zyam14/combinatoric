@@ -1,0 +1,160 @@
+using System;
+using System.Collections.Generic;
+
+class HeapSort
+{
+    private static int Parent(int i)
+    {
+        return (i - 1) / 2;
+    }
+
+    private static int Left(int i)
+    {
+        return 2 * i + 1;
+    }
+
+    private static int Right(int i)
+    {
+        return 2 * i + 2;
+    }
+
+    private static void MaxHeapify(List<int> A, int i, int heapSize)
+    {
+        int left = Left(i);
+        int right = Right(i);
+        int largest = i;
+
+        if (left < heapSize && A[left] > A[i])
+        {
+            largest = left;
+        }
+
+        if (right < heapSize && A[right] > A[largest])
+        {
+            largest = right;
+        }
+
+        if (largest != i)
+        {
+            (A[i], A[largest]) = (A[largest], A[i]);
+            MaxHeapify(A, largest, heapSize);
+        }
+    }
+
+    private static void BuildMaxHeap(List<int> A)
+    {
+        int heapSize = A.Count;
+        for (int i = heapSize / 2 - 1; i >= 0; i--)
+        {
+            MaxHeapify(A, i, heapSize);
+        }
+    }
+
+    private static void HeapIncreaseKey(List<int> A, int i, int key)
+    {
+        if (key < A[i])
+        {
+            throw new ArgumentException("New key is smaller than the current key");
+        }
+
+        A[i] = key;
+
+        while (i > 0 && A[Parent(i)] < A[i])
+        {
+            (A[i], A[Parent(i)]) = (A[Parent(i)], A[i]);
+            i = Parent(i);
+        }
+    }
+
+    private static void MaxHeapInsert(List<int> A, int key)
+    {
+        A.Add(int.MinValue);
+        HeapIncreaseKey(A, A.Count - 1, key);
+    }
+
+    private static int HeapExtractMax(List<int> A)
+    {
+        if (A.Count == 0)
+        {
+            throw new InvalidOperationException("Heap is empty");
+        }
+
+        int max = A[0];
+        A[0] = A[^1];
+        A.RemoveAt(A.Count - 1);
+        MaxHeapify(A, 0, A.Count);
+
+        return max;
+    }
+
+    private static void HeapSort1(List<int> A)
+    {
+        BuildMaxHeap(A);
+        int heapSize = A.Count;
+
+        for (int i = heapSize - 1; i >= 1; i--)
+        {
+            (A[0], A[i]) = (A[i], A[0]);
+            heapSize--;
+            MaxHeapify(A, 0, heapSize);
+        }
+    }
+
+    private static void PrintHeap(List<int> A)
+    {
+        foreach (int num in A)
+        {
+            Console.Write(num + " ");
+        }
+        Console.WriteLine();
+    }
+
+    static void Main()
+    {
+        try
+        {
+            var A = new List<int> { 3, 5, 1, 10, 2 };
+            Console.WriteLine("Original array:");
+            PrintHeap(A);
+
+            BuildMaxHeap(A);
+
+            HeapIncreaseKey(A, 3, 6);
+
+            MaxHeapInsert(A, 8);
+
+            int max = HeapExtractMax(A);
+            Console.WriteLine("Extracted max: " + max);
+
+            var B = new List<int> { 4, 7, 1, 3, 9 };
+            HeapSort1(B);
+
+            var C = new List<int> { 15, 3, 17, 10, 84, 19, 6, 22, 9 };
+            Console.WriteLine("Original array C:");
+            PrintHeap(C);
+
+            BuildMaxHeap(C);
+            MaxHeapInsert(C, 95);
+            int maxC = HeapExtractMax(C);
+            Console.WriteLine("Extracted max from C: " + maxC);
+            HeapSort1(C);
+
+            var D = new List<int> { 20, 1, 14, 5, 7, 9, 30 };
+            Console.WriteLine("Original array D:");
+            PrintHeap(D);
+
+            BuildMaxHeap(D);
+            HeapIncreaseKey(D, 2, 25);
+            MaxHeapInsert(D, 50);
+            int maxD = HeapExtractMax(D);
+            Console.WriteLine("Extracted max from D: " + maxD);
+            HeapSort1(D);
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+    }
+}
+
