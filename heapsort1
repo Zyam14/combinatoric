@@ -1,0 +1,90 @@
+using System;
+using System.Collections.Generic;
+
+class HeapSort
+{
+    // Функция MAX_HEAPIFY восстанавливает свойства максимальной кучи
+    private static void MaxHeapify(List<int> A, int i, int heapSize)
+    {
+        int left = 2 * i + 1;
+        int right = 2 * i + 2;
+        int largest = i;
+
+        if (left < heapSize && A[left] > A[i])
+        {
+            largest = left;
+        }
+
+        if (right < heapSize && A[right] > A[largest])
+        {
+            largest = right;
+        }
+
+        if (largest != i)
+        {
+            (A[i], A[largest]) = (A[largest], A[i]);
+            MaxHeapify(A, largest, heapSize);
+        }
+    }
+
+    // Функция BUILD_MAX_HEAP строит максимальную кучу
+    private static void BuildMaxHeap(List<int> A)
+    {
+        int heapSize = A.Count;
+        for (int i = heapSize / 2 - 1; i >= 0; i--)
+        {
+            MaxHeapify(A, i, heapSize);
+        }
+    }
+
+    // Функция HEAPSORT сортирует массив с помощью кучи
+    public static void HeapSort(List<int> A)
+    {
+        int heapSize = A.Count;
+        BuildMaxHeap(A);
+
+        for (int i = heapSize - 1; i >= 1; i--)
+        {
+            (A[0], A[i]) = (A[i], A[0]);
+            heapSize--;
+            MaxHeapify(A, 0, heapSize);
+        }
+    }
+
+    // Функция для вывода списка
+    private static void PrintArray(List<int> A)
+    {
+        foreach (var num in A)
+        {
+            Console.Write(num + " ");
+        }
+        Console.WriteLine();
+    }
+
+    static void Main()
+    {
+        // Тест 1: Набор данных с отсортированными числами
+        var data1 = new List<int> { 1, 2, 3, 4, 5, 6, 7 };
+        Console.WriteLine("Test 1 (Already sorted):");
+        HeapSort(data1);
+        PrintArray(data1);
+
+        // Тест 2: Набор данных в обратном порядке
+        var data2 = new List<int> { 7, 6, 5, 4, 3, 2, 1 };
+        Console.WriteLine("Test 2 (Reverse order):");
+        HeapSort(data2);
+        PrintArray(data2);
+
+        // Тест 3: Набор данных с повторяющимися элементами
+        var data3 = new List<int> { 3, 1, 2, 3, 2, 1 };
+        Console.WriteLine("Test 3 (Duplicates):");
+        HeapSort(data3);
+        PrintArray(data3);
+
+        // Тест 4: Набор данных с случайными числами
+        var data4 = new List<int> { 10, 20, 5, 3, 9, 8, 7 };
+        Console.WriteLine("Test 4 (Random):");
+        HeapSort(data4);
+        PrintArray(data4);
+    }
+}
